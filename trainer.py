@@ -96,7 +96,7 @@ class Trainer():
     def load_vae(self):
         path = os.path.join(self.p.log_dir, 'checkpoints', 'vae.pt')
         if os.path.exists(path):
-            self.vae = self.vae.load_state_dict(torch.load(path))
+            self.vae.load_state_dict(torch.load(path))
         return os.path.exists(path)
 
     def save_classifier(self):
@@ -109,7 +109,7 @@ class Trainer():
     def load_classifier(self):
         path = os.path.join(self.p.log_dir, 'checkpoints', 'classifier.pt')
         if os.path.exists(path):
-            self.cl_model = self.cl_model.load_state_dict(torch.load(path))
+            self.cl_model.load_state_dict(torch.load(path))
         return os.path.exists(path)
 
     def loss(self, x, pred, mu, logvar):
