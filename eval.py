@@ -11,8 +11,8 @@ class ConvNet(nn.Module):
     def __init__(self, params, num_classes=10, net_width=128, net_depth=3, net_act='relu', net_norm='instancenorm', net_pooling='avgpooling'):
         super(ConvNet, self).__init__()
 
-        channel = 3 if params.cifar else 1
-        im_size = (32,32) if params.cifar else (28,28)
+        channel = 3
+        im_size = (32,32)
 
         self.features, shape_feat = self._make_layers(channel, net_width, net_depth, net_norm, net_act, net_pooling, im_size)
         num_feat = shape_feat[0]*shape_feat[1]*shape_feat[2]
