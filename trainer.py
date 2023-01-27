@@ -142,6 +142,52 @@ class Trainer():
             for p in self.vae.parameters():
                 p.requires_grad = False
 
+    def wasserstein_dist(self, X, Y):
+        '''
+        Calulates the two components of the 2-Wasserstein metric:
+        The general formula is given by: d(P_X, P_Y) = min_{X, Y} E[|X-Y|^2]
+        For multivariate gaussian distributed inputs z_X ~ MN(mu_X, cov_X) and z_Y ~ MN(mu_Y, cov_Y),
+        this reduces to: d = |mu_X - mu_Y|^2 - Tr(cov_X + cov_Y - 2(cov_X * cov_Y)^(1/2))
+        Fast method implemented according to following paper: https://arxiv.org/pdf/2009.14075.pdf
+        Input shape: [b, n] (e.g. batch_size x num_features)
+        Output shape: scalar
+        '''
+
+        if X.shape != Y.shape:
+            raise ValueError("Expecting equal shapes for X and Y!")
+
+        # the linear algebra ops will need some extra precision -> convert to double
+        X, Y = X.transpose(0, 1).double(), Y.transpose(0, 1).double()  # [n, b]
+        mu_X, mu_Y = torch.mean(X, dim=1, keepdim=True), torch.mean(Y, dim=1, keepdim=True)  # [n, 1]
+        n, b = X.shape
+        fact = 1.0 if b < 2 else 1.0 / (b - 1)
+
+        # Cov. Matrix
+        E_X = X - mu_X
+        E_Y = Y - mu_Y
+        cov_X = torch.matmul(E_X, E_X.t()) * fact  # [n, n]
+        cov_Y = torch.matmul(E_Y, E_Y.t()) * fact
+
+        # calculate Tr((cov_X * cov_Y)^(1/2)). with the method proposed in https://arxiv.org/pdf/2009.14075.pdf
+        # The eigenvalues for M are real-valued.
+        C_X = E_X * math.sqrt(fact)  # [n, n], "root" of covariance
+        C_Y = E_Y * math.sqrt(fact)
+        M_l = torch.matmul(C_X.t(), C_Y)
+        M_r = torch.matmul(C_Y.t(), C_X)
+        M = torch.matmul(M_l, M_r)
+        S = linalg.eigvals(M) + 1e-15  # add small constant to avoid infinite gradients from sqrt(0)
+        sq_tr_cov = S.sqrt().abs().sum()
+
+        # plug the sqrt_trace_component into Tr(cov_X + cov_Y - 2(cov_X * cov_Y)^(1/2))
+        trace_term = torch.trace(cov_X + cov_Y) - 2.0 * sq_tr_cov  # scalar
+
+        # |mu_X - mu_Y|^2
+        diff = mu_X - mu_Y  # [n, 1]
+        mean_term = torch.sum(torch.mul(diff, diff))  # scalar
+
+        # put it together
+        return (trace_term + mean_term).float()
+
     def train_classifier(self):
         print('############## Training Classifier ##############')
         if self.load_classifier():
@@ -197,7 +243,7 @@ class Trainer():
                 label = label.to(self.p.device)
                 _,_,_, d_z = self.vae(data)
                 d_zs = F.softmax(d_z.squeeze(), dim=1)
-                mmd = self.kl_loss(zs, d_zs)
+                mmd = self.wasserstein_dist(zs, d_zs)
             else:
                 mmd = torch.norm(stats - z.mean(dim=0))
             cl = self.cl_loss(pred,self.labels)
