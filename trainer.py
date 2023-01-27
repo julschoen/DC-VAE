@@ -176,7 +176,7 @@ class Trainer():
         M_l = torch.matmul(C_X.t(), C_Y)
         M_r = torch.matmul(C_Y.t(), C_X)
         M = torch.matmul(M_l, M_r)
-        S = linalg.eigvals(M) + 1e-15  # add small constant to avoid infinite gradients from sqrt(0)
+        S = torch.linalg.eigvals(M) + 1e-15  # add small constant to avoid infinite gradients from sqrt(0)
         sq_tr_cov = S.sqrt().abs().sum()
 
         # plug the sqrt_trace_component into Tr(cov_X + cov_Y - 2(cov_X * cov_Y)^(1/2))
