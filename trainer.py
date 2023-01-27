@@ -195,7 +195,7 @@ class Trainer():
                 data, label = next(self.gen)
                 data = data.to(self.p.device)
                 label = label.to(self.p.device)
-                _,_,_, d_z
+                _,_,_, d_z = self.vae(data)
                 d_zs = F.softmax(d_z, dim=1)
                 mmd = kl_loss(zs, d_zs)
             else:
