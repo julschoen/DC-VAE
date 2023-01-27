@@ -243,7 +243,7 @@ class Trainer():
                 label = label.to(self.p.device)
                 _,_,_, d_z = self.vae(data)
                 d_zs = F.softmax(d_z.squeeze(), dim=1)
-                mmd = self.wasserstein_dist(zs, d_zs)
+                mmd = self.wasserstein_dist(z, d_z.squeeze())
             else:
                 mmd = torch.norm(stats - z.mean(dim=0))
             cl = self.cl_loss(pred,self.labels)
