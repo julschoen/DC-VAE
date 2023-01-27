@@ -197,7 +197,7 @@ class Trainer():
                 label = label.to(self.p.device)
                 _,_,_, d_z = self.vae(data)
                 d_zs = F.softmax(d_z, dim=1)
-                mmd = kl_loss(zs, d_zs)
+                mmd = self.kl_loss(zs, d_zs)
             else:
                 mmd = torch.norm(stats - z.mean(dim=0))
             cl = self.cl_loss(pred,self.labels)
