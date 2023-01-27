@@ -170,8 +170,8 @@ class Trainer():
 
         # calculate Tr((cov_X * cov_Y)^(1/2)). with the method proposed in https://arxiv.org/pdf/2009.14075.pdf
         # The eigenvalues for M are real-valued.
-        C_X = E_X * math.sqrt(fact)  # [n, n], "root" of covariance
-        C_Y = E_Y * math.sqrt(fact)
+        C_X = E_X * torch.sqrt(fact)  # [n, n], "root" of covariance
+        C_Y = E_Y * torch.sqrt(fact)
         M_l = torch.matmul(C_X.t(), C_Y)
         M_r = torch.matmul(C_Y.t(), C_X)
         M = torch.matmul(M_l, M_r)
