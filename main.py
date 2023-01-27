@@ -25,6 +25,7 @@ def main():
     parser.add_argument('--num_ims', type=int, default=10)
     parser.add_argument('--niter_ims', type=int, default=50000)
     parser.add_argument('--lrIms', type=float, default=1e-4)
+    parser.add_argument('--kl', type=bool, default=False)
     args = parser.parse_args()
 
     train_kwargs = {'batch_size': args.batch_size, 'shuffle':True}

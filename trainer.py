@@ -33,6 +33,7 @@ class Trainer():
         self.labels = torch.arange(10, device=self.p.device).repeat(self.p.num_ims,1).T.flatten()
         self.opt_ims = torch.optim.Adam([self.ims], lr=self.p.lrIms)
 
+        self.kl_loss = nn.KLDivLoss(reduction="batchmean")
 
         
         ### Make Log Dirs
@@ -173,20 +174,32 @@ class Trainer():
         print('############## Training Images ##############')
         self.ims.requires_grad = True
         stats = []
-        with torch.no_grad():
-            for i, (x,y) in enumerate(self.train_loader):
-                _, _, _, z = self.vae(x.to(self.p.device))
-                stats.append(z.squeeze())
+        if not self.p.kl:
+            with torch.no_grad():
+                for i, (x,y) in enumerate(self.train_loader):
+                    _, _, _, z = self.vae(x.to(self.p.device))
+                    stats.append(z.squeeze())
 
-            stats = torch.cat(stats)
-            stats = stats.mean(dim=0)
+                stats = torch.cat(stats)
+                stats = stats.mean(dim=0)
 
         for t in range(self.p.niter_ims):
             self.opt_ims.zero_grad()
             _, _, _, z = self.vae(torch.tanh(self.ims))
             z = z.squeeze()
             pred = self.cl_model(z)
-            mmd = torch.norm(stats - z.mean(dim=0))
+            if self.p.kl:
+                # input should be a distribution in the log space
+                zs = F.log_softmax(z, dim=1)
+                # Sample a batch of distributions. Usually this would come from the dataset
+                data, label = next(self.gen)
+                data = data.to(self.p.device)
+                label = label.to(self.p.device)
+                _,_,_, d_z
+                d_zs = F.softmax(d_z, dim=1)
+                mmd = kl_loss(zs, d_zs)
+            else:
+                mmd = torch.norm(stats - z.mean(dim=0))
             cl = self.cl_loss(pred,self.labels)
             loss = mmd + cl
             loss.backward()
