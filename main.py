@@ -85,6 +85,9 @@ def main():
         zs.append(z_ims)
         ys.append(trainer.labels.detach().cpu())
 
+        zs = np.concatenate(zs)
+        ys = np.concatenate(ys)
+
         print(transformer.explained_variance_)
 
         print(zs.shape)
