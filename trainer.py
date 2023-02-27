@@ -294,28 +294,26 @@ class Trainer():
             labels = labels[perm]
 
             ## VAE
-            _, _, _, encX = self.vae(data.to(self.p.device), labels)
+            if self.p.ae:
+                _, encX = self.vae(data.to(self.p.device), labels)
+                rec, encY = self.vae(torch.tanh(self.ims), self.labels)
+            else:
+                _, _, _, encX = self.vae(data.to(self.p.device), labels)
+                rec, _, _, encY = self.vae(torch.tanh(self.ims), self.labels)
+
             encX = encX.detach()
-            rec, mu, logvar, encY = self.vae(torch.tanh(self.ims), self.labels)
             mmd = mix_rbf_mmd2(encX, encY, [8, 16, 32, 64])
-            mmd = 10*torch.sqrt(F.relu(mmd))
+            mmd = torch.sqrt(F.relu(mmd))
+            loss = loss + mmd
 
             if self.p.rec:
-                rec_loss, _ = self.loss(torch.tanh(self.ims), rec, mu, logvar)
+                rec_loss = self.loss_ae(torch.tanh(self.ims), rec)
+                loss = loss + self.p.rec_coef*rec
 
             ## Correlation:
             if self.p.corr:
                 corr = self.total_variation_loss(torch.tanh(self.ims))
-            else:
-                corr = torch.zeros(1)
-
-            loss = loss + mmd
-
-            if self.p.corr:
                 loss = loss + self.p.corr_coef*corr
-
-            if self.p.rec:
-                loss = loss + self.p.rec_coef*rec
 
             self.opt_ims.zero_grad()
             loss.backward()
