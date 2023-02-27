@@ -136,9 +136,9 @@ def main():
         transforms.Normalize(0.5, 0.5)
     ])
     
-    dataset1 = datasets.CIFAR10('./', train=True, download=True,
+    dataset1 = datasets.CIFAR10('../data', train=True, download=True,
                        transform=transform)
-    dataset2 = datasets.CIFAR10('./', train=False,
+    dataset2 = datasets.CIFAR10('../data', train=False,
                        transform=transform)
     
     train_loader = torch.utils.data.DataLoader(dataset1, shuffle=True, **train_kwargs)
