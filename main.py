@@ -87,6 +87,8 @@ def main():
 
         print(transformer.explained_variance_)
 
+        print(zs.shape)
+
         X, Y = zs[:-100], ys[:-100]
         x, y = zs[-100:], ys[-100:]
 
