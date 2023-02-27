@@ -79,14 +79,14 @@ def main():
         X, Y = X_embedded[:-100], ys[:-100]
         x, y = X_embedded[-100:], ys[-100:]
 
-        plt.figure(figsize=(16,14))
+        fig = plt.figure(figsize=(16,14))
         plt.scatter(X[:,0], X[:,1], c=Y.numpy(), cmap='Set1')
         plt.scatter(x[:,0], x[:,1], cmap='black')
         plt.colorbar()
         plt.savefig('all_vae.pdf', bbox_inches='tight')
-        plt.show()
+        plt.close(fig)
 
-        plt.figure(figsize=(40,30))
+        fig = plt.figure(figsize=(40,30))
         for ind in range(10):
             plt.subplot(3,4,ind+1)
             plt.scatter(X[ind == Y,0], X[ind == Y,1], cmap='b', label='real')
@@ -94,7 +94,7 @@ def main():
             plt.title(f'Class {ind}')
             plt.legend()
         plt.savefig('classes_vae.pdf', bbox_inches='tight')
-        plt.show()
+        plt.close(fig)
     
 
 if __name__ == '__main__':
