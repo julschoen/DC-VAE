@@ -14,7 +14,7 @@ def main():
     parser.add_argument('--log_dir', type=str, default='./log')
     parser.add_argument('--load_vae', type=bool, default=False)
     parser.add_argument('--load_ims', type=bool, default=False)
-    parser.add_argument('--tsne', type=bool, default=False)
+    parser.add_argument('--pca', type=bool, default=False)
 
     ### VAE
     parser.add_argument('--niter_vae', type=int, default=3000)
@@ -51,7 +51,7 @@ def main():
 
     trainer = Trainer(args, train_loader)
     trainer.train()
-    if args.tsne:
+    if args.pca:
         transformer = IncrementalPCA(n_components=2, batch_size=200)
         with torch.no_grad():
             for i, (x,y) in enumerate(train_loader):
