@@ -98,6 +98,13 @@ class Trainer():
         file_name = os.path.join(path, 'labels.pt')
         torch.save(self.labels.cpu(), file_name)
 
+    def load_ims(self):
+        path = os.path.join(self.p.log_dir, 'checkpoints', 'data.pt')
+        if os.path.exists(path):
+            self.ims = torch.load(path)
+            self.ims = torch.nn.Parameter(self.ims)
+        return os.path.exists(path)
+
     def save_vae(self):
         path = os.path.join(self.p.log_dir, 'checkpoints')
         if not os.path.isdir(path):
@@ -123,7 +130,7 @@ class Trainer():
 
     def train_vae(self):
         print('############## Training VAE ##############')
-        if self.p.load and self.load_vae():
+        if self.p.load_vae and self.load_vae():
             print('Loaded existing checkpoint not training again')
         else:
             for p in self.vae.parameters():
