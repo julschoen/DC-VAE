@@ -9,6 +9,7 @@ import math
 
 from vae import ResVAE, Upsampler
 from classifier import Net
+from mmd import mix_rbf_mmd2
 
 class Trainer():
     def __init__(self, params, train_loader):
