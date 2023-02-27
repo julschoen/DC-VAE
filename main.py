@@ -3,7 +3,7 @@ import torch
 from torchvision import datasets, transforms
 from trainer import Trainer
 import numpy as np
-from sklearn.manifold import TSNE
+from sklearn.decomposition import IncrementalPCA
 import matplotlib.pyplot as plt
 
 def main():
@@ -12,7 +12,8 @@ def main():
     parser.add_argument('--batch_size', type=int, default= 512, help='input batch size for training (default: 512)')
     parser.add_argument('--device', type=str, default='cuda')
     parser.add_argument('--log_dir', type=str, default='./log')
-    parser.add_argument('--load', type=bool, default=False)
+    parser.add_argument('--load_vae', type=bool, default=False)
+    parser.add_argument('--load_ims', type=bool, default=False)
     parser.add_argument('--tsne', type=bool, default=False)
 
     ### VAE
@@ -51,6 +52,16 @@ def main():
     trainer = Trainer(args, train_loader)
     trainer.train()
     if args.tsne:
+        transformer = IncrementalPCA(n_components=2, batch_size=200)
+        with torch.no_grad():
+            for i, (x,y) in enumerate(train_loader):
+                if args.ae:
+                    _, z = trainer.vae(x.cuda(), y)
+                else:
+                    _, _, _, z = trainer.vae(x.cuda(), y)
+
+                transformer.partial_fit(z.squeeze().detach().cpu().numpy())
+
         zs = []
         ys = []
         with torch.no_grad():
@@ -59,26 +70,25 @@ def main():
                     _, z = trainer.vae(x.cuda(), y)
                 else:
                     _, _, _, z = trainer.vae(x.cuda(), y)
-                zs.append(z.detach().cpu())
+
+                z = transformer.transform(z.squeeze().detach().cpu().numpy())
+
+                zs.append(z)
                 ys.append(y.detach().cpu())
 
         if args.ae:
             _, z_ims = trainer.vae(torch.tanh(trainer.ims), trainer.labels)
         else:
             _, _, _, z_ims = trainer.vae(torch.tanh(trainer.ims), trainer.labels)
-        zs.append(z_ims.detach().cpu())
+
+        z_ims = transformer.transform(z_ims.squeeze().detach().cpu().numpy())
+        zs.append(z_ims)
         ys.append(trainer.labels.detach().cpu())
 
-        zs = torch.cat(zs).squeeze()
-        ys = torch.cat(ys)
-        tsne = TSNE(n_components=2, learning_rate='auto',
-                 init='random', perplexity=30)
+        print(transformer.explained_variance_)
 
-        X_embedded = tsne.fit_transform(zs.numpy())
-        X_embedded.shape
-
-        X, Y = X_embedded[:-100], ys[:-100]
-        x, y = X_embedded[-100:], ys[-100:]
+        X, Y = zs[:-100], ys[:-100]
+        x, y = zs[-100:], ys[-100:]
 
         fig = plt.figure(figsize=(16,14))
         plt.scatter(X[:,0], X[:,1], c=Y.numpy(), cmap='Set1')
