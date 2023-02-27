@@ -25,7 +25,7 @@ def main():
 
     ### Synth Images
     parser.add_argument('--num_ims', type=int, default=10)
-    parser.add_argument('--niter_ims', type=int, default=1000)
+    parser.add_argument('--niter_ims', type=int, default=10000)
     parser.add_argument('--lrIms', type=float, default=1e-3)
     parser.add_argument('--rec', type=bool, default=False)
     parser.add_argument('--rec_coef', type=float, default=0.1)
