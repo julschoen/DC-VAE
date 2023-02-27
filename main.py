@@ -90,13 +90,11 @@ def main():
 
         print(transformer.explained_variance_)
 
-        print(zs.shape)
-
         X, Y = zs[:-100], ys[:-100]
         x, y = zs[-100:], ys[-100:]
 
         fig = plt.figure(figsize=(16,14))
-        plt.scatter(X[:,0], X[:,1], c=Y.numpy(), cmap='Set1')
+        plt.scatter(X[:,0], X[:,1], c=Y, cmap='Set1')
         plt.scatter(x[:,0], x[:,1], cmap='black')
         plt.colorbar()
         plt.savefig('all_vae.pdf', bbox_inches='tight')
