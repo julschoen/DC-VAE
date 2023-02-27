@@ -13,6 +13,7 @@ def main():
     parser.add_argument('--device', type=str, default='cuda')
     parser.add_argument('--log_dir', type=str, default='./log')
     parser.add_argument('--load', type=bool, default=False)
+    parser.add_argument('--tsne', type=bool, default=False)
 
     ### VAE
     parser.add_argument('--niter_vae', type=int, default=3000)
