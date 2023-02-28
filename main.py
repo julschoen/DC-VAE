@@ -89,7 +89,7 @@ def main():
         zs = np.concatenate(zs)
         ys = np.concatenate(ys)
 
-        print(transformer.explained_variance_)
+        print(transformer.explained_variance_ratio_)
 
         X, Y = zs[:-100], ys[:-100]
         x, y = zs[-100:], ys[-100:]
