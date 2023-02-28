@@ -129,9 +129,9 @@ class Trainer():
         return F.mse_loss(pred, x,reduction='sum')/x.shape[0]
 
     def train_vae(self):
-        print('############## Training VAE ##############')
+        print('############## Training VAE ##############',flush=True)
         if self.p.load_vae and self.load_vae():
-            print('Loaded existing checkpoint not training again')
+            print('Loaded existing checkpoint not training again',flush=True)
         else:
             for p in self.vae.parameters():
                 p.requires_grad = True
@@ -151,9 +151,9 @@ class Trainer():
                 self.opt_vae.step()
                 if (t%100) == 0:
                     if self.p.ae:
-                        print('[{}|{}] Loss: {:.4f}'.format(t, self.p.niter_vae, loss.item()))
+                        print('[{}|{}] Loss: {:.4f}'.format(t, self.p.niter_vae, loss.item()), flush=True)
                     else:
-                        print('[{}|{}] Rec: {:.4f}, KLD: {:.4f}, Loss {:.4f}'.format(t, self.p.niter_vae, rec.item(), kl.item(), loss.item()))
+                        print('[{}|{}] Rec: {:.4f}, KLD: {:.4f}, Loss {:.4f}'.format(t, self.p.niter_vae, rec.item(), kl.item(), loss.item()),flush=True)
                     self.log_reconstructions(t, data, pred)
             self.save_vae()
 
@@ -214,7 +214,7 @@ class Trainer():
         return (trace_term + mean_term).float()
 
     def train_ims_cw(self):
-        print('############## Training Images ##############')
+        print('############## Training Images ##############',flush=True)
         self.ims.requires_grad = True
         stats = []
         self.vae.eval()
@@ -279,14 +279,14 @@ class Trainer():
                     s += ', Corr: {:.4f}'.format(corr.item())
                 if self.p.rec:
                     s += ', Rec: {:.4f}'.format(rec.item())
-                print(s)
+                print(s,flush=True)
                 self.log_interpolation(t)
 
         self.save()
         self.ims.requires_grad = False
 
     def train_ims(self):
-        print('############## Training Images ##############')
+        print('############## Training Images ##############',flush=True)
         self.ims.requires_grad = True
         stats = []
         self.vae.eval()
@@ -334,14 +334,14 @@ class Trainer():
                     s += ', Corr: {:.4f}'.format(corr.item())
                 if self.p.rec:
                     s += ', Rec: {:.4f}'.format(rec.item())
-                print(s)
+                print(s,flush=True)
                 self.log_interpolation(t)
 
         self.save()
         self.ims.requires_grad = False
                 
     def train_up(self):
-        print('############## Training Images ##############')
+        print('############## Training Images ##############',flush=True)
         for p in self.up.parameters():
                 p.requires_grad = True
         stats = []
@@ -405,7 +405,7 @@ class Trainer():
                     s += ', Corr: {:.4f}'.format(corr.item())
                 if self.p.rec:
                     s += ', Rec: {:.4f}'.format(rec.item())
-                print(s)
+                print(s,flush=True)
                 self.log_interpolation(t)
 
         self.save()
