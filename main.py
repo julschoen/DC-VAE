@@ -30,7 +30,7 @@ def main():
     parser.add_argument('--lrIms', type=float, default=1e-3)
     parser.add_argument('--rec', type=bool, default=False)
     parser.add_argument('--rec_coef', type=float, default=0.1)
-    parser.add_argument('--corr', type=bool, default=True)
+    parser.add_argument('--corr', type=bool, default=False)
     parser.add_argument('--corr_coef', type=float, default=0.1)
     parser.add_argument('--class_wise', type=bool, default=False)
     parser.add_argument('--up', type=bool, default=False)
