@@ -136,16 +136,17 @@ class Trainer():
             for p in self.vae.parameters():
                 p.requires_grad = True
             for t in range(self.p.niter_vae):
-                data, label = next(self.gen)
-                data = data.to(self.p.device)
-                self.vae.zero_grad()
-                if self.p.ae:
-                    pred, z = self.vae(data,label)
-                    loss = self.loss_ae(data, pred)
-                else:
-                    pred, mu, logvar, z = self.vae(data, label)
-                    rec, kl = self.loss(data, pred, mu, logvar)
-                    loss = rec + self.p.beta * kl
+                with torch.autocast(device_type=self.p.device, dtype=torch.float16):
+                    data, label = next(self.gen)
+                    data = data.to(self.p.device)
+                    self.vae.zero_grad()
+                    if self.p.ae:
+                        pred, z = self.vae(data,label)
+                        loss = self.loss_ae(data, pred)
+                    else:
+                        pred, mu, logvar, z = self.vae(data, label)
+                        rec, kl = self.loss(data, pred, mu, logvar)
+                        loss = rec + self.p.beta * kl
                 loss.backward()
                 self.opt_vae.step()
                 if (t%100) == 0:
