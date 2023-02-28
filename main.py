@@ -5,6 +5,7 @@ from trainer import Trainer
 import numpy as np
 from sklearn.decomposition import IncrementalPCA
 import matplotlib.pyplot as plt
+import os
 
 def main():
     parser = argparse.ArgumentParser(description='DC-VAE')
@@ -25,7 +26,7 @@ def main():
 
     ### Synth Images
     parser.add_argument('--num_ims', type=int, default=10)
-    parser.add_argument('--niter_ims', type=int, default=10000)
+    parser.add_argument('--niter_ims', type=int, default=1000)
     parser.add_argument('--lrIms', type=float, default=1e-3)
     parser.add_argument('--rec', type=bool, default=False)
     parser.add_argument('--rec_coef', type=float, default=0.1)
@@ -97,7 +98,7 @@ def main():
         plt.scatter(X[:,0], X[:,1], c=Y, cmap='Set1')
         plt.scatter(x[:,0], x[:,1], cmap='black')
         plt.colorbar()
-        plt.savefig('all_vae.pdf', bbox_inches='tight')
+        plt.savefig(os.path.join(args.log_dir, 'images','all_vae.pdf'), bbox_inches='tight')
         plt.close(fig)
 
         fig = plt.figure(figsize=(40,30))
@@ -107,7 +108,7 @@ def main():
             plt.scatter(x[ind == y,0], x[ind == y,1], cmap='r', label='embedded')
             plt.title(f'Class {ind}')
             plt.legend()
-        plt.savefig('classes_vae.pdf', bbox_inches='tight')
+        plt.savefig(os.path.join(args.log_dir, 'images','classes_vae.pdf'), bbox_inches='tight')
         plt.close(fig)
     
 
