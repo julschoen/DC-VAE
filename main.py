@@ -15,7 +15,7 @@ def main():
     parser.add_argument('--log_dir', type=str, default='./log')
     parser.add_argument('--load_vae', type=bool, default=False)
     parser.add_argument('--load_ims', type=bool, default=False)
-    parser.add_argument('--pca', type=bool, default=False)
+    parser.add_argument('--pca', type=bool, default=True)
 
     ### VAE
     parser.add_argument('--niter_vae', type=int, default=3000)
