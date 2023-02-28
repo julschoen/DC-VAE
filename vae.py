@@ -33,9 +33,9 @@ class ResDown(nn.Module):
     def __init__(self, channel_in, channel_out, kernel_size=3):
         super(ResDown, self).__init__()
         self.conv1 = nn.Conv2d(channel_in, channel_out // 2, kernel_size, 2, kernel_size // 2)
-        self.bn1 = nn.BatchNorm2d(channel_out // 2, eps=1e-4)
+        self.bn1 = nn.GroupNorm(channel_out//2, channel_out//2, affine=True)#nn.BatchNorm2d(channel_out // 2, eps=1e-4)
         self.conv2 = nn.Conv2d(channel_out // 2, channel_out, kernel_size, 1, kernel_size // 2)
-        self.bn2 = nn.BatchNorm2d(channel_out, eps=1e-4)
+        self.bn2 = nn.GroupNorm(channel_out//2, channel_out//2, affine=True)#nn.BatchNorm2d(channel_out, eps=1e-4)
 
         self.conv3 = nn.Conv2d(channel_in, channel_out, kernel_size, 2, kernel_size // 2)
 
@@ -56,9 +56,9 @@ class ResUp(nn.Module):
         super(ResUp, self).__init__()
 
         self.conv1 = nn.Conv2d(channel_in, channel_out // 2, kernel_size, 1, kernel_size // 2)
-        self.bn1 = nn.BatchNorm2d(channel_out // 2, eps=1e-4)
+        self.bn1 = nn.GroupNorm(channel_out//2, channel_out//2, affine=True)#nn.BatchNorm2d(channel_out // 2, eps=1e-4)
         self.conv2 = nn.Conv2d(channel_out // 2, channel_out, kernel_size, 1, kernel_size // 2)
-        self.bn2 = nn.BatchNorm2d(channel_out, eps=1e-4)
+        self.bn2 = nn.GroupNorm(channel_out//2, channel_out//2, affine=True)#nn.BatchNorm2d(channel_out, eps=1e-4)
 
         self.conv3 = nn.Conv2d(channel_in, channel_out, kernel_size, 1, kernel_size // 2)
 
