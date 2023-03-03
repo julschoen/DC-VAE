@@ -32,7 +32,10 @@ class Trainer():
             self.opt_ims = torch.optim.Adam(self.up.parameters(), lr=self.p.lrIms)
         else:
             self.ims = torch.randn(10*self.p.num_ims,3,32,32).to(self.p.device)
-            self.up = Upsampler()
+
+            if self.p.init_ims:
+                self.init_ims()
+
             self.ims = torch.nn.Parameter(self.ims)
             self.labels = torch.arange(10, device=self.p.device).repeat(self.p.num_ims,1).T.flatten()
             self.opt_ims = torch.optim.Adam([self.ims], lr=self.p.lrIms)
@@ -55,6 +58,13 @@ class Trainer():
         while True:
             for data in self.train_loader:
                 yield data
+
+    def init_ims(self):
+        for c in range(10):
+            X = torch.load(os.path.join('../data/', f'data_class_{c}.pt'))
+            perm = torch.randperm(X.shape[0])[:self.p.num_ims]
+            xc = X[perm]
+            self.ims[c*self.p.num_ims:(c+1)*self.p.num_ims] = xc
 
     def log_interpolation(self, step):
         path = os.path.join(self.p.log_dir, 'images/synth')
