@@ -20,7 +20,7 @@ def main():
     ### VAE
     parser.add_argument('--niter_vae', type=int, default=3000)
     parser.add_argument('--lrVAE', type=float, default=1e-4)
-    parser.add_argument('--z_dim', type=int, default=100)
+    parser.add_argument('--z_dim', type=int, default=512)
     parser.add_argument('--beta', type=float, default=1)
     parser.add_argument('--ae', type=bool, default=False)
 
