@@ -7,6 +7,68 @@ import torch.optim as optim
 from torchvision import datasets, transforms
 import torch.utils.data as data_utils
 
+class BasicBlock(nn.Module):
+    expansion = 1
+
+    def __init__(self, in_planes, planes, stride=1):
+        super(BasicBlock, self).__init__()
+        self.conv1 = nn.Conv2d(in_planes, planes, kernel_size=3, stride=stride, padding=1, bias=False)
+        self.bn1 = nn.BatchNorm2d(planes)
+        self.conv2 = nn.Conv2d(planes, planes, kernel_size=3, stride=1, padding=1, bias=False)
+        self.bn2 = nn.BatchNorm2d(planes)
+
+        self.shortcut = nn.Sequential()
+        if stride != 1 or in_planes != self.expansion * planes:
+            self.shortcut = nn.Sequential(
+                nn.Conv2d(in_planes, self.expansion * planes, kernel_size=1, stride=stride, bias=False),
+                nn.BatchNorm2d(self.expansion * planes)
+            )
+
+    def forward(self, x):
+        out = F.relu(self.bn1(self.conv1(x)))
+        out = self.bn2(self.conv2(out))
+        out += self.shortcut(x)
+        out = F.relu(out)
+        return out
+
+class ResNet18(nn.Module):
+    def __init__(self):
+        super(ResNet18, self).__init__()
+        self.in_planes = 64
+
+        self.conv1 = nn.Conv2d(3, 64, kernel_size=3, stride=1, padding=1, bias=False)
+        self.bn1 = nn.BatchNorm2d(64)
+        self.layer1 = nn.Sequential(
+            BasicBlock(64, 64, stride=1),
+            BasicBlock(64, 64, stride=1)
+        )
+        self.layer2 = nn.Sequential(
+            BasicBlock(64, 128, stride=2),
+            BasicBlock(128, 128, stride=1)
+        )
+        self.layer3 = nn.Sequential(
+            BasicBlock(128, 256, stride=2),
+            BasicBlock(256, 256, stride=1)
+        )
+        self.layer4 = nn.Sequential(
+            BasicBlock(256, 512, stride=2),
+            BasicBlock(512, 512, stride=1)
+        )
+        self.avgpool = nn.AdaptiveAvgPool2d((1, 1))
+        self.linear = nn.Linear(512, 10)
+
+    def forward(self, x):
+        out = F.relu(self.bn1(self.conv1(x)))
+        out = self.layer1(out)
+        out = self.layer2(out)
+        out = self.layer3(out)
+        out = self.layer4(out)
+        out = self.avgpool(out)
+        out = out.view(out.size(0), -1)
+        out = self.linear(out)
+        out = F.log_softmax(out, dim=1)
+        return out
+
 class ConvNet(nn.Module):
     def __init__(self, params, num_classes=10, net_width=128, net_depth=3, net_act='relu', net_norm='instancenorm', net_pooling='avgpooling'):
         super(ConvNet, self).__init__()
@@ -154,6 +216,13 @@ def main():
             train(args, model, device, train_loader, optimizer, epoch)
         test(model, device, test_loader)
 
+        model = ResNet18().to(device)
+        optimizer = optim.Adam(model.parameters(), lr=args.lr)
+
+        for epoch in range(1, args.epochs + 1):
+            train(args, model, device, train_loader, optimizer, epoch)
+        test(model, device, test_loader)
+
     chkpt = os.path.join(args.log_dir, 'checkpoints')
     targets = torch.load(os.path.join(chkpt,'labels.pt'))
     features = torch.load(os.path.join(chkpt, 'data.pt'))
@@ -167,8 +236,13 @@ def main():
         train(args, model, device, train_loader, optimizer, epoch)
     test(model, device, test_loader)
 
-    if args.save_model:
-        torch.save(model.state_dict(), "mnist_cnn.pt")
+    model = ResNet18().to(device)
+    optimizer = optim.Adam(model.parameters(), lr=args.lr)
+
+    for epoch in range(1, 200):
+        train(args, model, device, train_loader, optimizer, epoch)
+    test(model, device, test_loader)
+
 
 
 if __name__ == '__main__':
