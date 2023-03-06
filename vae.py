@@ -86,7 +86,7 @@ class Encoder(nn.Module):
     def __init__(self, channels, ch=128, latent_channels=512, ae=False):
         super(Encoder, self).__init__()
         self.ae = ae
-        self.conv_in = nn.Conv2d(channels, ch, 7, 1, 3)
+        self.conv_in = nn.Conv2d(channels, ch*2, 7, 1, 3)
         self.conv_label = nn.Conv2d(10, ch, 7, 1, 3)
         self.res_down_block1 = ResDown(ch*2, 4 * ch)
         self.res_down_block2 = ResDown(4 * ch, 8 * ch)
@@ -111,7 +111,7 @@ class Encoder(nn.Module):
         y = self.fill[y]
         x = self.act_fnc(self.conv_in(x))
         y = self.act_fnc(self.conv_label(y))
-        x = torch.cat([x, y], 1)
+        #x = torch.cat([x, y], 1)
         x = self.res_down_block1(x)  # 16
         x = self.res_down_block2(x)  # 8
         x = self.res_down_block3(x)  # 4
