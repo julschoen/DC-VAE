@@ -239,7 +239,7 @@ class Trainer():
                 data, labels = next(self.gen)
 
                 d_c = data[labels == c]
-                #d_c = d_c[torch.randperm(d_c.shape[0])[:self.p.num_ims]]
+                d_c = d_c[torch.randperm(d_c.shape[0])[:self.p.num_ims]]
 
                 labels = torch.ones(d_c.shape[0], dtype=torch.long)*c
                 ims = self.ims[c*self.p.num_ims:(c+1)*self.p.num_ims]
@@ -249,9 +249,9 @@ class Trainer():
                     _, encX = self.vae(d_c.to(self.p.device), labels)
                     encX = encX.detach()
                     rec, encY = self.vae(torch.tanh(ims), labels[:ims.shape[0]])
-                    #mmd = mix_rbf_mmd2(encX, encY, [8, 16, 32, 64])
-                    #mmd = torch.sqrt(F.relu(mmd))
-                    mmd = torch.norm(encX.mean(dim=0)-encY.mean(dim=0))
+                    mmd = mix_rbf_mmd2(encX, encY, [8, 16, 32, 64])
+                    mmd = torch.sqrt(F.relu(mmd))
+                    #mmd = torch.norm(encX.mean(dim=0)-encY.mean(dim=0))
                 else:
                     _, muX, varX, encX = self.vae(d_c.to(self.p.device), labels)
                     encX = encX.detach()
