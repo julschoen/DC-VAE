@@ -248,7 +248,7 @@ class Trainer():
                 if self.p.ae:
                     encX = self.vae.encoder(d_c.to(self.p.device), labels).detach()
                     encY = self.vae.encoder(torch.tanh(ims), labels[:ims.shape[0]])
-                    mmd, _, _ = mix_rbf_mmd2_and_ratio(encX, encY, [8, 16, 32, 64])
+                    mmd = mix_rbf_mmd2(encX, encY, [8, 16, 32, 64])
                     mmd = torch.sqrt(F.relu(mmd))
                     #mmd = torch.norm(encX.mean(dim=0)-encY.mean(dim=0))
                 else:
