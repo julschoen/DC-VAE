@@ -20,7 +20,7 @@ class Trainer():
 
         ### VAE
         self.vae = ResVAE(latent_size=self.p.z_dim, ae=self.p.ae).to(self.p.device)
-        self.opt_vae = torch.optim.Adam(self.vae.parameters(), lr=self.p.lrVAE, weight_decay=1e-5)
+        self.opt_vae = torch.optim.Adam(self.vae.parameters(), lr=self.p.lrVAE)
 
 
         ### Synth Ims
